@@ -498,6 +498,9 @@ const ICONS = {
   wxRain:    '<path d="M7 14.4h10a3.6 3.6 0 0 0 .3-7.2 5.1 5.1 0 0 0-9.8-.8A3.1 3.1 0 0 0 7 14.4Z"/><path d="M8.8 17.2 7.6 21M12.6 17.2 11.4 21M16.4 17.2 15.2 21"/>',
   wxSnow:    '<path d="M7 14.4h10a3.6 3.6 0 0 0 .3-7.2 5.1 5.1 0 0 0-9.8-.8A3.1 3.1 0 0 0 7 14.4Z"/><path d="M9 18v2.6M7.9 19.3h2.2M15 18v2.6M13.9 19.3h2.2M12 18.8v2.6"/>',
   wxStorm:   '<path d="M7 14.4h10a3.6 3.6 0 0 0 .3-7.2 5.1 5.1 0 0 0-9.8-.8A3.1 3.1 0 0 0 7 14.4Z"/><path d="M13.6 16.4 10 19.4h3.3L10.8 22"/>',
+  droplet:   '<path d="M12 3.4c3.2 4 5 6.5 5 8.9a5 5 0 0 1-10 0c0-2.4 1.8-4.9 5-8.9Z"/>',
+  wind:      '<path d="M3 8.6h9.4a2.7 2.7 0 1 0-2.7-2.7"/><path d="M3 12.6h12.6a2.7 2.7 0 1 1-2.7 2.7"/><path d="M3 16.6h6.2"/>',
+  link:      '<path d="M10.6 13.4a4 4 0 0 0 5.7 0l2.8-2.8a4 4 0 0 0-5.7-5.7l-1.5 1.5"/><path d="M13.4 10.6a4 4 0 0 0-5.7 0l-2.8 2.8a4 4 0 0 0 5.7 5.7l1.5-1.5"/>',
 };
 function icon(name, cls = 'w-5 h-5') {
   return `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
@@ -558,7 +561,14 @@ const TRIP = [
    {
     "cat": "flight",
     "title": "班機 LJ764",
-    "note": "03:00 桃園 T1 → 06:10 濟州"
+    "note": "03:00 桃園 T1 → 06:10 濟州",
+    "links": [
+     {
+      "label": "航班狀態",
+      "url": "https://www.flightradar24.com/data/flights/lj764",
+      "icon": "plane"
+     }
+    ]
    },
    {
     "cat": "car",
@@ -824,10 +834,24 @@ const TRIP = [
     "cat": "island",
     "title": "牛島",
     "kr": "우도",
-    "note": "09:30 城山港搭船進島",
+    "note": "09:30 城山港搭船進島 · 導航到城山浦港公營停車場",
     "nav": {
-     "q": "우도"
-    }
+     "lat": 33.472463,
+     "lng": 126.933234,
+     "kr": "성산포항 공영주차장"
+    },
+    "links": [
+     {
+      "label": "查看船班",
+      "url": "http://udoboat.smart9.net/m/pages.php?p=3_1_1_1",
+      "icon": "ship"
+     },
+     {
+      "label": "租電動車",
+      "url": "https://www.threads.com/@zongxun6412",
+      "icon": "car"
+     }
+    ]
    },
    {
     "cat": "sight",
@@ -981,7 +1005,14 @@ const TRIP = [
    {
     "cat": "flight",
     "title": "班機 LJ941",
-    "note": "22:15 濟州 → 23:45 桃園"
+    "note": "22:15 濟州 → 23:45 桃園",
+    "links": [
+     {
+      "label": "航班狀態",
+      "url": "https://www.flightradar24.com/data/flights/lj941",
+      "icon": "plane"
+     }
+    ]
    }
   ]
  }
@@ -1182,7 +1213,7 @@ function renderPlan() {
         <span class="font-display text-[13px] font-extrabold tnum">${d.date.slice(5)}</span>
         <span class="dpWd font-mono text-[10px] tracking-[0.06em]">${WD_EN[d.wd]}</span>
       </span>
-      <span class="dpWx hidden items-center gap-1 mt-1.5 h-3.5"></span>
+      <span class="dpWx hidden flex-col items-center gap-[3px] mt-1.5"></span>
     </button>`).join('');
   paintDayWx();
 
@@ -1232,6 +1263,13 @@ function row(it, day) {
            ${icon('search', 'w-3.5 h-3.5')}搜尋</button>`
       : '';
 
+  // 外部連結（船班、租車、航班狀態…）：開新分頁，不走 Naver scheme
+  const links = (it.links || []).map(l =>
+    `<a href="${l.url}" target="_blank" rel="noopener"
+        class="inline-flex items-center gap-1 bg-white ring-1 ring-ink-line active:bg-paper
+               text-forest text-[11px] font-bold rounded-full px-2.5 py-1">
+        ${icon(l.icon || 'link', 'w-3.5 h-3.5')}${l.label}</a>`).join('');
+
   const copyBtn = it.copy
     ? `<button onclick="copyText('${it.copy.replace(/'/g, "\\'")}')" aria-label="複製地址"
          class="shrink-0 w-8 h-8 flex items-center justify-center bg-white ring-1 ring-ink-line active:bg-paper text-ink-mid rounded-full">
@@ -1262,6 +1300,8 @@ function row(it, day) {
             ? `<span class="text-[10px] font-bold rounded px-1.5 py-0.5 ${isClosed ? 'bg-clay text-white' : 'bg-paper text-ink-mid ring-1 ring-ink-line'}">
                  星期${WD[it.closed]}公休${isClosed ? '（就是今天）' : ''}</span>` : ''}
         </div>` : ''}
+
+        ${links ? `<div class="flex flex-wrap gap-1.5 mt-2">${links}</div>` : ''}
       </div>
 
       <div class="flex flex-col gap-1.5 items-end">${action}${copyBtn}</div>
@@ -1422,10 +1462,14 @@ document.querySelectorAll('.navBtn').forEach(b => b.onclick = () => switchTab(b.
    每日天氣 —— 資料來源：Open-Meteo（免金鑰、支援 CORS、非商業免費）
    日期膠囊下方顯示天氣符號與當日「最高~最低溫」。
 
-   Open-Meteo 的逐日預報只到未來 16 天，行程還在範圍外，
-   所以現在走 archive API 取 2020–2025 同期的實測資料平均，
-   並在日期列下方標明來源；等接近出發日、預報涵蓋得到六天，
-   就自動換成真正的預報，註記也會一併消失。
+   地點固定為濟州市（33.4996, 126.5312），日期列下方會標出資料來源。
+   來源優先序：韓國氣象廳 KMA 模式 → 多模式綜合 → 往年同期實測平均。
+   每天顯示：天氣圖示、最高~最低溫、降雨機率、風速級距（文字不給數字）。
+
+   Open-Meteo 的逐日預報只到未來 16 天。行程若還在範圍外，
+   會自動改用 archive API 取往年同期的實測平均（降雨機率改用
+   「幾年同一天真的下雨」換算），並在註記標明；等預報涵蓋得到
+   六天就自動換回真正的預報。
    ========================================================= */
 const WX = { lat: 33.4996, lng: 126.5312, tz: 'Asia%2FSeoul' };   // 濟州市
 
@@ -1458,40 +1502,63 @@ async function getJSON(url, ms = 9000) {
 }
 
 /* ---------- 行程六天的天氣 ---------- */
+/* 預報網址：同一組參數，差別只在要不要指定 models */
+function fcUrl(start, end, model) {
+  return `https://api.open-meteo.com/v1/forecast?latitude=${WX.lat}&longitude=${WX.lng}` +
+         `&daily=weather_code,temperature_2m_max,temperature_2m_min,` +
+         `precipitation_probability_max,wind_speed_10m_max` +
+         `&start_date=${start}&end_date=${end}&timezone=${WX.tz}` +
+         (model ? `&models=${model}` : '');
+}
+
+/* 把 daily 區塊對到 TRIP 的六天。
+   六天要全部有值才算數 —— 只有部分的話整組不採用，
+   免得同一列裡混著兩個不同來源的數字。 */
+function mapDaily(d) {
+  if (!d || !d.time || !d.time.length) return null;
+  const got = TRIP.map(day => {
+    const i = d.time.indexOf(isoDate(day.date));
+    if (i < 0 || d.temperature_2m_max[i] == null) return null;
+    const [ic, label] = wmo(d.weather_code[i]);
+    return {
+      icon: ic, label,
+      tmax: d.temperature_2m_max[i], tmin: d.temperature_2m_min[i],
+      pop:  d.precipitation_probability_max ? d.precipitation_probability_max[i] : null,
+      wind: d.wind_speed_10m_max ? d.wind_speed_10m_max[i] : null,
+    };
+  });
+  return got.every(Boolean) ? got : null;
+}
+
 async function loadTripWx() {
   const start = isoDate(TRIP[0].date);
   const end   = isoDate(TRIP[TRIP.length - 1].date);
 
-  // (a) 先試真正的預報
-  try {
-    const j = await getJSON(
-      `https://api.open-meteo.com/v1/forecast?latitude=${WX.lat}&longitude=${WX.lng}` +
-      `&daily=weather_code,temperature_2m_max,temperature_2m_min` +
-      `&start_date=${start}&end_date=${end}&timezone=${WX.tz}`);
-    const d = j && j.daily;
-    if (d && d.time && d.time.length) {
-      const got = TRIP.map(day => {
-        const i = d.time.indexOf(isoDate(day.date));
-        if (i < 0 || d.temperature_2m_max[i] == null) return null;
-        const [ic, label] = wmo(d.weather_code[i]);
-        return { icon: ic, label, tmax: d.temperature_2m_max[i], tmin: d.temperature_2m_min[i] };
-      });
-      // 六天要全部拿得到才算數，只有部分的話寧可整組退回往年平均，
-      // 免得同一列裡混著預報跟平均值。
-      if (got.every(Boolean)) { DAY_WX = got; paintDayWx(); return; }
-    }
-  } catch (e) { /* 預報拿不到 → 往下走往年平均 */ }
+  // (a) 兩個來源同時打，優先用韓國氣象廳的模式；
+  //     KMA 那條目前回傳的是 null（Open-Meteo 正在遷移到新的 KIM 模式來源），
+  //     等他們恢復供應，這裡會自動切過去，不用再改程式。
+  const [kma, mix] = await Promise.all([
+    getJSON(fcUrl(start, end, 'kma_seamless')).then(j => mapDaily(j && j.daily)).catch(() => null),
+    getJSON(fcUrl(start, end)).then(j => mapDaily(j && j.daily)).catch(() => null),
+  ]);
 
-  // (b) 往年同期實測平均
+  if (kma) {
+    DAY_WX = kma; paintDayWx();
+    setWxNote('濟州市（제주시）· 韓國氣象廳 KMA 預報');
+    return;
+  }
+  if (mix) {
+    DAY_WX = mix; paintDayWx();
+    setWxNote('濟州市（제주시）· 綜合預報（KMA 資料暫停供應中，恢復後會自動改用）');
+    return;
+  }
+
+  // (b) 都拿不到（例如行程超出 16 天預報範圍）→ 往年同期實測平均
   const nm = await loadNormals(start, end);
   if (!nm) return;
   DAY_WX = nm.days;
   paintDayWx();
-  const note = document.getElementById('wxNote');
-  if (note) {
-    note.textContent = `往年同期實測平均（${nm.from}–${nm.to}），接近出發日會自動換成實際預報`;
-    note.classList.remove('hidden');
-  }
+  setWxNote(`濟州市（제주시）· 往年同期實測平均（${nm.from}–${nm.to}），接近出發日會自動換成實際預報`);
 }
 
 const NORM_KEY = 'jeju-wx-normals-v1';
@@ -1509,7 +1576,8 @@ async function loadNormals(start, end) {
     const y = y0 - k;
     jobs.push(getJSON(
       `https://archive-api.open-meteo.com/v1/archive?latitude=${WX.lat}&longitude=${WX.lng}` +
-      `&daily=weather_code,temperature_2m_max,temperature_2m_min` +
+      `&daily=weather_code,temperature_2m_max,temperature_2m_min,` +
+      `precipitation_sum,wind_speed_10m_max` +
       `&start_date=${y}${md0}&end_date=${y}${md1}&timezone=${WX.tz}`).catch(() => null));
   }
   const res = (await Promise.all(jobs)).filter(j => j && j.daily && j.daily.time);
@@ -1517,12 +1585,18 @@ async function loadNormals(start, end) {
 
   const avg = a => a.reduce((x, v) => x + v, 0) / a.length;
   const days = TRIP.map((_, i) => {
-    const tx = [], tn = [], codes = [];
+    const tx = [], tn = [], codes = [], wd = [];
+    let rainY = 0, totY = 0;
     for (const j of res) {
       const d = j.daily;
       if (d.temperature_2m_max[i] != null) tx.push(d.temperature_2m_max[i]);
       if (d.temperature_2m_min[i] != null) tn.push(d.temperature_2m_min[i]);
       if (d.weather_code[i] != null) codes.push(d.weather_code[i]);
+      if (d.wind_speed_10m_max && d.wind_speed_10m_max[i] != null) wd.push(d.wind_speed_10m_max[i]);
+      // 往年沒有「降雨機率」這個欄位，改用「幾年同一天真的下了雨」當機率
+      if (d.precipitation_sum && d.precipitation_sum[i] != null) {
+        totY++; if (d.precipitation_sum[i] >= 1) rainY++;
+      }
     }
     if (!tx.length) return null;
     // 天氣符號取眾數；平手時取數字小的（比較晴的那個）
@@ -1531,7 +1605,12 @@ async function loadNormals(start, end) {
     const keys = Object.keys(tally);
     const code = keys.length ? +keys.sort((a, b) => tally[b] - tally[a] || a - b)[0] : 3;
     const [ic, label] = wmo(code);
-    return { icon: ic, label, tmax: avg(tx), tmin: tn.length ? avg(tn) : null };
+    return {
+      icon: ic, label,
+      tmax: avg(tx), tmin: tn.length ? avg(tn) : null,
+      pop:  totY ? (rainY / totY) * 100 : null,
+      wind: wd.length ? avg(wd) : null,
+    };
   });
 
   const data = { days, from: y0 - N, to: y0 - 1, n: res.length };
@@ -1540,9 +1619,27 @@ async function loadNormals(start, end) {
 }
 
 /* 沒有天氣資料的那格直接 hidden，膠囊自動收成兩行高，不會留一條空白 */
+function setWxNote(text) {
+  const note = document.getElementById('wxNote');
+  if (!note) return;
+  note.textContent = text;
+  note.classList.remove('hidden');
+}
+
 function wxClass(on, active) {
-  return 'dpWx ' + (on ? 'flex' : 'hidden') + ' items-center gap-1 mt-1.5 h-3.5 ' +
+  return 'dpWx ' + (on ? 'flex' : 'hidden') + ' flex-col items-center gap-[3px] mt-1.5 ' +
          (active ? 'text-lime/80' : 'text-sage-deep');
+}
+
+/* 風速用級距文字而不是數字 —— 邊界取蒲福風級（km/h）的分界 */
+function windLabel(kmh) {
+  if (kmh == null) return null;
+  if (kmh < 12) return '無風';     // 蒲福 0–2
+  if (kmh < 20) return '微風';     // 蒲福 3
+  if (kmh < 29) return '有點風';   // 蒲福 4
+  if (kmh < 39) return '風大';     // 蒲福 5
+  if (kmh < 50) return '風很大';   // 蒲福 6
+  return '強風';                   // 蒲福 7 以上
 }
 
 function paintDayWx() {
@@ -1559,9 +1656,19 @@ function paintDayWx() {
     const t = (w.tmin != null)
       ? `${Math.round(w.tmax)}~${Math.round(w.tmin)}°`
       : `${Math.round(w.tmax)}°`;
-    el.innerHTML = icon(w.icon, 'w-3.5 h-3.5') +
-      `<span class="font-mono text-[9.5px] font-medium tnum">${t}</span>`;
-    el.title = w.label;
+    const wind = windLabel(w.wind);
+    const line2 = [
+      w.pop == null ? '' : icon('droplet', 'w-[11px] h-[11px]') +
+        `<span class="font-mono text-[9px] tnum">${Math.round(w.pop)}%</span>`,
+      wind == null ? '' : icon('wind', 'w-[11px] h-[11px]') +
+        `<span class="text-[9px] font-medium">${wind}</span>`,
+    ].filter(Boolean).join('<span class="w-1"></span>');
+    el.innerHTML =
+      `<span class="flex items-center gap-1">${icon(w.icon, 'w-3.5 h-3.5')}` +
+      `<span class="font-mono text-[9.5px] font-medium tnum">${t}</span></span>` +
+      (line2 ? `<span class="flex items-center gap-0.5 opacity-75">${line2}</span>` : '');
+    el.title = [w.label, w.pop == null ? '' : '降雨機率 ' + Math.round(w.pop) + '%', wind]
+      .filter(Boolean).join(' · ');
     el.dataset.on = '1';
     el.className = wxClass(true, active);
   });
