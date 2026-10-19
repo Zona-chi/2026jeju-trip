@@ -131,11 +131,11 @@ window.tailwind && (tailwind.config = {
   #boot.gone { opacity: 0; pointer-events: none; }
   #boot .be {
     font-family: "IBM Plex Mono", ui-monospace, monospace;
-    font-size: 10px; letter-spacing: .32em; padding-left: .32em; color: #3F7A4E;
+    font-size: 11px; letter-spacing: .32em; padding-left: .32em; color: #3F7A4E;
   }
   #boot .bw {
     font-family: "Plus Jakarta Sans", "Noto Sans TC", -apple-system, sans-serif;
-    font-weight: 800; font-size: 54px; line-height: 1; letter-spacing: -.03em; color: #4F955E;
+    font-weight: 800; font-size: 60px; line-height: 1; letter-spacing: -.03em; color: #4F955E;
   }
 
   /* 字標本身做漸層流動：深綠 → 亮綠 → 粉紅 的光由左往右掃過字面。
@@ -336,12 +336,12 @@ window.tailwind && (tailwind.config = {
       <!-- 大標題：sticky 釘住，不做位移也不淡出 -->
       <div id="heroText" class="px-5 flex items-start justify-between">
         <div>
-          <p class="font-mono text-[10px] tracking-[0.32em] text-sage-deep">OCT 2026 · 6 DAYS</p>
-          <h1 class="font-display text-[78px] font-extrabold leading-[0.95] tracking-[-0.03em] text-forest mt-1">JEJU</h1>
+          <p class="font-mono text-[11px] tracking-[0.32em] text-sage-deep">OCT 2026 · 6 DAYS</p>
+          <h1 class="font-display text-[86px] font-extrabold leading-[0.95] tracking-[-0.03em] text-forest mt-1">JEJU</h1>
         </div>
         <div class="shrink-0 glass backdrop-blur-xl ring-1 ring-white/60 shadow-sm rounded-full px-3.5 py-2 text-center">
-          <p class="font-mono text-[9px] tracking-[0.14em] text-ink-dim">TRIP</p>
-          <p class="font-display text-[13px] font-extrabold text-forest tnum">10/24–29</p>
+          <p class="font-mono text-[10px] tracking-[0.14em] text-ink-dim">TRIP</p>
+          <p class="font-display text-[14.5px] font-extrabold text-forest tnum">10/24–29</p>
         </div>
       </div>
 
@@ -418,7 +418,7 @@ window.tailwind && (tailwind.config = {
     <div class="sticky top-0 z-30 glass backdrop-blur-xl">
       <div id="daynav" class="flex gap-2 px-4 py-3 overflow-x-auto no-scrollbar"></div>
       <!-- 只有在用往年平均、不是實際預報時才顯示 -->
-      <p id="wxNote" class="hidden px-4 pb-2.5 -mt-0.5 font-mono text-[9.5px] leading-relaxed text-ink-dim"></p>
+      <p id="wxNote" class="hidden px-4 pb-2.5 -mt-0.5 font-mono text-[10.5px] leading-relaxed text-ink-dim"></p>
     </div>
 
     <main id="days" class="px-4 pt-3 pb-32 space-y-4"></main>
@@ -427,16 +427,16 @@ window.tailwind && (tailwind.config = {
   <!-- ==================== 分頁 2：地點清單 ==================== -->
   <section id="view-places">
     <header class="px-5 pt-8">
-      <p class="font-mono text-[10px] tracking-[0.32em] text-sage-deep">SAVED PLACES</p>
+      <p class="font-mono text-[11px] tracking-[0.32em] text-sage-deep">SAVED PLACES</p>
       <div class="flex items-end justify-between mt-1">
-        <h1 class="font-display text-[34px] font-extrabold leading-none tracking-[-0.02em] text-forest">LIST</h1>
-        <p class="font-mono text-[11px] text-ink-dim pb-1"><span id="count">0</span> saved</p>
+        <h1 class="font-display text-[38px] font-extrabold leading-none tracking-[-0.02em] text-forest">LIST</h1>
+        <p class="font-mono text-[12.5px] text-ink-dim pb-1"><span id="count">0</span> saved</p>
       </div>
 
       <div class="relative mt-4">
         <span id="searchIcon" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-sage-deep"></span>
         <input id="search" type="search" inputmode="search" placeholder="搜尋名稱、韓文名或區域…"
-          class="w-full glass backdrop-blur-xl ring-1 ring-white/70 shadow-sm rounded-2xl pl-10 pr-4 py-3 text-[14px] text-ink placeholder:text-ink-dim outline-none focus:ring-sage">
+          class="w-full glass backdrop-blur-xl ring-1 ring-white/70 shadow-sm rounded-2xl pl-10 pr-4 py-3 text-[15.5px] text-ink placeholder:text-ink-dim outline-none focus:ring-sage">
       </div>
     </header>
 
@@ -451,15 +451,25 @@ window.tailwind && (tailwind.config = {
   <nav class="fixed bottom-5 left-1/2 -translate-x-1/2 z-40 w-[min(22rem,calc(100%-2.5rem))] safe-b">
     <div class="glass backdrop-blur-xl ring-1 ring-white/70 shadow-[0_10px_30px_-10px_rgba(27,42,34,.28)] rounded-full p-1.5 flex gap-1.5">
       <button data-tab="plan" class="navBtn flex-1 flex items-center justify-center gap-2 rounded-full py-2.5">
-        <span class="navIcon"></span><span class="text-[12.5px] font-bold">行程</span>
+        <span class="navIcon"></span><span class="text-[14px] font-bold">行程</span>
       </button>
       <button data-tab="places" class="navBtn flex-1 flex items-center justify-center gap-2 rounded-full py-2.5">
-        <span class="navIcon"></span><span class="text-[12.5px] font-bold">地點清單</span>
+        <span class="navIcon"></span><span class="text-[14px] font-bold">地點清單</span>
+      </button>
+
+      <!-- 動作鈕：開 Naver Map 搜尋附近停車場。
+           刻意不給 navBtn 這個 class —— switchTab 是用 .navBtn 的索引去決定
+           要放行事曆還是清單圖示的，多一顆進去會錯位，而且它也不是分頁，
+           不該有「選中」狀態。 -->
+      <button onclick="navSearch('주차장')" aria-label="在 Naver Map 搜尋附近的停車場"
+        class="shrink-0 flex items-center justify-center gap-1.5 rounded-full px-3.5 py-2.5
+               bg-white ring-1 ring-naver/45 active:bg-naver/10 text-naver transition-colors">
+        <span id="parkIcon"></span><span class="text-[14px] font-bold">尋找停車場</span>
       </button>
     </div>
   </nav>
 
-  <div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 bg-forest text-paper-warm text-xs px-4 py-2.5 rounded-full opacity-0 pointer-events-none transition-opacity duration-200"></div>
+  <div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 bg-forest text-paper-warm text-[13.5px] px-4 py-2.5 rounded-full opacity-0 pointer-events-none transition-opacity duration-200"></div>
 </div>
 
 <script>
@@ -501,6 +511,7 @@ const ICONS = {
   droplet:   '<path d="M12 3.4c3.2 4 5 6.5 5 8.9a5 5 0 0 1-10 0c0-2.4 1.8-4.9 5-8.9Z"/>',
   wind:      '<path d="M3 8.6h9.4a2.7 2.7 0 1 0-2.7-2.7"/><path d="M3 12.6h12.6a2.7 2.7 0 1 1-2.7 2.7"/><path d="M3 16.6h6.2"/>',
   link:      '<path d="M10.6 13.4a4 4 0 0 0 5.7 0l2.8-2.8a4 4 0 0 0-5.7-5.7l-1.5 1.5"/><path d="M13.4 10.6a4 4 0 0 0-5.7 0l-2.8 2.8a4 4 0 0 0 5.7 5.7l1.5-1.5"/>',
+  parking:   '<rect x="3.4" y="3.4" width="17.2" height="17.2" rx="4.6"/><path d="M9.6 17.2V7.4h3.2a2.95 2.95 0 0 1 0 5.9H9.6"/>',
 };
 function icon(name, cls = 'w-5 h-5') {
   return `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
@@ -843,7 +854,7 @@ const TRIP = [
     "links": [
      {
       "label": "查看船班",
-      "url": "http://udoboat.smart9.net/m/pages.php?p=3_1_1_1",
+      "url": "https://chengshan.kr/zh-hant",
       "icon": "ship"
      },
      {
@@ -1210,8 +1221,8 @@ function renderPlan() {
     <button onclick="gotoDay(${i})" data-i="${i}"
       class="dayPill shrink-0 flex flex-col items-center leading-none px-3.5 py-2 rounded-2xl ring-1 transition-colors">
       <span class="flex items-baseline gap-1.5">
-        <span class="font-display text-[13px] font-extrabold tnum">${d.date.slice(5)}</span>
-        <span class="dpWd font-mono text-[10px] tracking-[0.06em]">${WD_EN[d.wd]}</span>
+        <span class="font-display text-[14.5px] font-extrabold tnum">${d.date.slice(5)}</span>
+        <span class="dpWd font-mono text-[11px] tracking-[0.06em]">${WD_EN[d.wd]}</span>
       </span>
       <span class="dpWx hidden flex-col items-center gap-[3px] mt-1.5"></span>
     </button>`).join('');
@@ -1224,19 +1235,19 @@ function renderPlan() {
 
       <div class="flex items-center gap-3.5 px-4 pt-4 pb-3.5">
         <div class="shrink-0 arch-tile w-11 h-[52px] bg-forest text-lime flex flex-col items-center justify-center gap-0.5">
-          <span class="font-mono text-[8.5px] tracking-[0.1em] opacity-80">DAY</span>
-          <span class="font-display text-[17px] font-extrabold leading-none">${i + 1}</span>
+          <span class="font-mono text-[9.5px] tracking-[0.1em] opacity-80">DAY</span>
+          <span class="font-display text-[19px] font-extrabold leading-none">${i + 1}</span>
         </div>
         <div class="min-w-0 flex-1">
-          <p class="font-display text-[19px] font-extrabold text-forest leading-none tnum">${d.date.slice(5)}
-            <span class="text-[12px] font-bold text-ink-mid ml-1">星期${WD[d.wd]}</span></p>
-          <p class="text-[11.5px] text-sage-deep font-medium mt-1.5">${d.zones.map(z => '【' + z + '】').join('')}</p>
+          <p class="font-display text-[21px] font-extrabold text-forest leading-none tnum">${d.date.slice(5)}
+            <span class="text-[13.5px] font-bold text-ink-mid ml-1">星期${WD[d.wd]}</span></p>
+          <p class="text-[13px] text-sage-deep font-medium mt-1.5">${d.zones.map(z => '【' + z + '】').join('')}</p>
         </div>
       </div>
 
       ${d.warn || closedToday ? `<div class="flex flex-wrap gap-1.5 px-4 pb-3">
-        ${d.warn ? `<span class="text-[10.5px] font-bold bg-lime-soft text-lime-deep rounded-lg px-2 py-1">${d.warn}</span>` : ''}
-        ${closedToday ? `<span class="text-[10.5px] font-bold bg-clay/12 text-clay rounded-lg px-2 py-1">有店家今天公休</span>` : ''}
+        ${d.warn ? `<span class="text-[12px] font-bold bg-lime-soft text-lime-deep rounded-lg px-2 py-1">${d.warn}</span>` : ''}
+        ${closedToday ? `<span class="text-[12px] font-bold bg-clay/12 text-clay rounded-lg px-2 py-1">有店家今天公休</span>` : ''}
       </div>` : ''}
 
       <div class="px-4 pb-4">${d.items.map(it => row(it, d)).join(hairline)}</div>
@@ -1255,11 +1266,11 @@ function row(it, day) {
   const action =
     it.nav && it.nav.lat
       ? `<button onclick="navRoute(${it.nav.lat},${it.nav.lng},'${it.nav.kr}')"
-           class="shrink-0 flex items-center gap-1 bg-naver active:brightness-95 text-white text-[11px] font-bold rounded-full px-3 py-1.5">
+           class="shrink-0 flex items-center gap-1 bg-naver active:brightness-95 text-white text-[12.5px] font-bold rounded-full px-3 py-1.5">
            ${icon('nav', 'w-3.5 h-3.5')}導航</button>`
       : it.nav && it.nav.q
       ? `<button onclick="navSearch('${it.nav.q}')"
-           class="shrink-0 flex items-center gap-1 bg-white ring-1 ring-naver/45 active:bg-naver/10 text-naver text-[11px] font-bold rounded-full px-3 py-1.5">
+           class="shrink-0 flex items-center gap-1 bg-white ring-1 ring-naver/45 active:bg-naver/10 text-naver text-[12.5px] font-bold rounded-full px-3 py-1.5">
            ${icon('search', 'w-3.5 h-3.5')}搜尋</button>`
       : '';
 
@@ -1267,7 +1278,7 @@ function row(it, day) {
   const links = (it.links || []).map(l =>
     `<a href="${l.url}" target="_blank" rel="noopener"
         class="inline-flex items-center gap-1 bg-white ring-1 ring-ink-line active:bg-paper
-               text-forest text-[11px] font-bold rounded-full px-2.5 py-1">
+               text-forest text-[12.5px] font-bold rounded-full px-2.5 py-1">
         ${icon(l.icon || 'link', 'w-3.5 h-3.5')}${l.label}</a>`).join('');
 
   const copyBtn = it.copy
@@ -1284,20 +1295,20 @@ function row(it, day) {
 
       <div class="min-w-0 flex-1">
         <div class="flex items-center gap-1.5 flex-wrap">
-          <span class="font-mono text-[9.5px] tracking-[0.14em] uppercase text-ink-dim">${c.label}</span>
-          ${it.rain ? `<span class="text-[9.5px] font-bold bg-sage-tint text-sage-deep rounded px-1.5">雨備</span>` : ''}
-          ${(it.tags || []).map(t => `<span class="text-[9.5px] font-bold bg-forest text-lime rounded px-1.5">${t}</span>`).join('')}
+          <span class="font-mono text-[10.5px] tracking-[0.14em] uppercase text-ink-dim">${c.label}</span>
+          ${it.rain ? `<span class="text-[10.5px] font-bold bg-sage-tint text-sage-deep rounded px-1.5">雨備</span>` : ''}
+          ${(it.tags || []).map(t => `<span class="text-[10.5px] font-bold bg-forest text-lime rounded px-1.5">${t}</span>`).join('')}
         </div>
 
-        <p class="text-[14.5px] font-bold text-forest leading-snug mt-1">${it.title}</p>
-        ${it.dish ? `<p class="text-[12px] text-clay font-medium mt-0.5">${it.dish}</p>` : ''}
-        ${it.kr ? `<p class="font-mono text-[10.5px] text-ink-dim mt-0.5">${it.kr}</p>` : ''}
-        ${it.note ? `<p class="text-[12px] text-ink-mid mt-1 leading-relaxed">${it.note}</p>` : ''}
+        <p class="text-[16px] font-bold text-forest leading-snug mt-1">${it.title}</p>
+        ${it.dish ? `<p class="text-[13.5px] text-clay font-medium mt-0.5">${it.dish}</p>` : ''}
+        ${it.kr ? `<p class="font-mono text-[12px] text-ink-dim mt-0.5">${it.kr}</p>` : ''}
+        ${it.note ? `<p class="text-[13.5px] text-ink-mid mt-1 leading-relaxed">${it.note}</p>` : ''}
 
         ${it.hours || typeof it.closed === 'number' ? `<div class="flex flex-wrap gap-1.5 mt-1.5">
-          ${it.hours ? `<span class="font-mono text-[10px] bg-paper text-ink-mid ring-1 ring-ink-line rounded px-1.5 py-0.5">${it.hours}</span>` : ''}
+          ${it.hours ? `<span class="font-mono text-[11px] bg-paper text-ink-mid ring-1 ring-ink-line rounded px-1.5 py-0.5">${it.hours}</span>` : ''}
           ${typeof it.closed === 'number'
-            ? `<span class="text-[10px] font-bold rounded px-1.5 py-0.5 ${isClosed ? 'bg-clay text-white' : 'bg-paper text-ink-mid ring-1 ring-ink-line'}">
+            ? `<span class="text-[11px] font-bold rounded px-1.5 py-0.5 ${isClosed ? 'bg-clay text-white' : 'bg-paper text-ink-mid ring-1 ring-ink-line'}">
                  星期${WD[it.closed]}公休${isClosed ? '（就是今天）' : ''}</span>` : ''}
         </div>` : ''}
 
@@ -1313,7 +1324,7 @@ function markDay(i) {
     const on = +b.dataset.i === i;
     b.className = 'dayPill shrink-0 flex flex-col items-center leading-none px-3.5 py-2 rounded-2xl ring-1 transition-colors ' +
       (on ? 'bg-forest text-lime ring-forest' : 'bg-white/70 text-ink-mid ring-white/80');
-    b.querySelector('.dpWd').className = 'dpWd font-mono text-[10px] tracking-[0.06em] ' +
+    b.querySelector('.dpWd').className = 'dpWd font-mono text-[11px] tracking-[0.06em] ' +
       (on ? 'text-lime/75' : 'text-ink-dim');
     const wx = b.querySelector('.dpWx');
     if (wx) wx.className = wxClass(wx.dataset.on === '1', on);
@@ -1370,8 +1381,8 @@ function renderPills() {
       class="pill shrink-0 flex items-center gap-1.5 rounded-full pl-2.5 pr-3.5 py-1.5 ring-1 transition-colors
         ${on ? 'bg-forest text-lime ring-forest' : 'bg-white/70 text-ink-mid ring-white/80'}">
       ${icon(c.icon, 'w-3.5 h-3.5')}
-      <span class="text-[12.5px] font-bold">${c.label}</span>
-      <span class="font-mono text-[10px] ${on ? 'text-lime/70' : 'text-ink-dim'}">${counts[c.key] || 0}</span>
+      <span class="text-[14px] font-bold">${c.label}</span>
+      <span class="font-mono text-[11px] ${on ? 'text-lime/70' : 'text-ink-dim'}">${counts[c.key] || 0}</span>
     </button>`;
   }).join('');
 
@@ -1395,7 +1406,7 @@ function renderCards() {
 
   if (!list.length) {
     document.getElementById('cards').innerHTML =
-      `<div class="text-center py-20 text-ink-dim text-sm">找不到符合的地點<br><span class="text-xs">試試其他關鍵字</span></div>`;
+      `<div class="text-center py-20 text-ink-dim text-[15.5px]">找不到符合的地點<br><span class="text-[13.5px]">試試其他關鍵字</span></div>`;
     return;
   }
 
@@ -1409,23 +1420,23 @@ function renderCards() {
         </div>
         <div class="min-w-0 flex-1">
           <div class="flex items-center gap-2 flex-wrap">
-            <span class="font-mono text-[9.5px] tracking-[0.14em] ${CAT_FG[p.category] || 'text-ink-dim'}">${p.category}</span>
-            <span class="bg-paper text-ink-mid ring-1 ring-ink-line rounded-full text-[10px] font-semibold px-2 py-0.5">${p.region}</span>
+            <span class="font-mono text-[10.5px] tracking-[0.14em] ${CAT_FG[p.category] || 'text-ink-dim'}">${p.category}</span>
+            <span class="bg-paper text-ink-mid ring-1 ring-ink-line rounded-full text-[11px] font-semibold px-2 py-0.5">${p.region}</span>
           </div>
-          <p class="text-[14.5px] font-bold text-forest leading-snug mt-1 break-words">${p.name}</p>
-          ${p.name_kr !== p.name ? `<p class="font-mono text-[10.5px] text-ink-dim mt-0.5">${p.name_kr}</p>` : ''}
+          <p class="text-[16px] font-bold text-forest leading-snug mt-1 break-words">${p.name}</p>
+          ${p.name_kr !== p.name ? `<p class="font-mono text-[12px] text-ink-dim mt-0.5">${p.name_kr}</p>` : ''}
         </div>
       </div>
 
-      <p class="text-[12.5px] text-ink-mid leading-relaxed mt-2.5">${p.description}</p>
+      <p class="text-[14px] text-ink-mid leading-relaxed mt-2.5">${p.description}</p>
 
       <div class="flex gap-2 mt-3.5">
         <button onclick="naverById(${p.id})"
-          class="flex-1 flex items-center justify-center gap-1.5 bg-naver active:brightness-95 text-white text-[12.5px] font-bold rounded-full py-2.5">
+          class="flex-1 flex items-center justify-center gap-1.5 bg-naver active:brightness-95 text-white text-[14px] font-bold rounded-full py-2.5">
           ${icon(p.lat ? 'nav' : 'search', 'w-4 h-4')}${p.lat ? 'Naver 導航' : 'Naver 搜尋'}
         </button>
         <a href="${p.gmaps}" target="_blank" rel="noopener"
-          class="flex items-center justify-center gap-1.5 bg-gblue active:brightness-95 text-white text-[12.5px] font-bold rounded-full px-3.5 py-2.5">
+          class="flex items-center justify-center gap-1.5 bg-gblue active:brightness-95 text-white text-[14px] font-bold rounded-full px-3.5 py-2.5">
           ${icon('pin', 'w-4 h-4')}Google
         </a>
         <button onclick="copyKr(${p.id})" aria-label="複製韓文名"
@@ -1659,13 +1670,13 @@ function paintDayWx() {
     const wind = windLabel(w.wind);
     const line2 = [
       w.pop == null ? '' : icon('droplet', 'w-[11px] h-[11px]') +
-        `<span class="font-mono text-[9px] tnum">${Math.round(w.pop)}%</span>`,
+        `<span class="font-mono text-[10px] tnum">${Math.round(w.pop)}%</span>`,
       wind == null ? '' : icon('wind', 'w-[11px] h-[11px]') +
-        `<span class="text-[9px] font-medium">${wind}</span>`,
+        `<span class="text-[10px] font-medium">${wind}</span>`,
     ].filter(Boolean).join('<span class="w-1"></span>');
     el.innerHTML =
       `<span class="flex items-center gap-1">${icon(w.icon, 'w-3.5 h-3.5')}` +
-      `<span class="font-mono text-[9.5px] font-medium tnum">${t}</span></span>` +
+      `<span class="font-mono text-[10.5px] font-medium tnum">${t}</span></span>` +
       (line2 ? `<span class="flex items-center gap-0.5 opacity-75">${line2}</span>` : '');
     el.title = [w.label, w.pop == null ? '' : '降雨機率 ' + Math.round(w.pop) + '%', wind]
       .filter(Boolean).join(' · ');
@@ -1704,6 +1715,7 @@ function paintDayWx() {
    啟動
    ========================================================= */
 document.getElementById('searchIcon').innerHTML = icon('search', 'w-4 h-4');
+document.getElementById('parkIcon').innerHTML   = icon('parking', 'w-[18px] h-[18px]');
 loadTripWx().catch(() => {});                // 天氣抓不到就靜靜略過，不影響行程
 renderPlan();
 markDay(0);
