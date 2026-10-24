@@ -21,7 +21,7 @@
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="JEJU 2026 · 10/24–10/29 濟州島行程">
+<meta property="og:image:alt" content="JEJU 2026 · 10/27–10/31 濟州島行程">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="JEJU 2026">
 <meta name="twitter:description" content="我們10月濟州島見~~~">
@@ -41,7 +41,7 @@ window.tailwind && (tailwind.config = {
       lime:   { DEFAULT:'#C8E63C', soft:'#EAF6AE', deep:'#8FA81F' },
       paper:  { DEFAULT:'#F3F5F2', warm:'#FAFAF7' },
       ink:    { DEFAULT:'#1B2A22', mid:'#5C6B60', dim:'#8B9A8F', line:'#E3E8DF' },
-      clay:   '#C75B4A',
+      clay:   '#EDA4A3',
       naver:  '#03C75A',
       gblue:  '#4285F4',
     },
@@ -50,7 +50,7 @@ window.tailwind && (tailwind.config = {
       sans:    ['"Noto Sans TC"','-apple-system','BlinkMacSystemFont','"Segoe UI"','sans-serif'],
       mono:    ['"IBM Plex Mono"','ui-monospace','SFMono-Regular','Menlo','monospace'],
     },
-    borderRadius: { '4xl':'2rem', '5xl':'2.5rem' },
+    borderRadius: { '4xl':'2.5rem', '5xl':'3rem' },
   }}
 });
 </script>
@@ -108,6 +108,24 @@ window.tailwind && (tailwind.config = {
   input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; }
   :focus-visible { outline: 2px solid #5A7A60; outline-offset: 2px; }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+  /* ---------- 圖片燈箱 ---------- */
+  #lightbox {
+    position: fixed; inset: 0; z-index: 60; display: none;
+    align-items: center; justify-content: center; padding: 18px;
+    background: rgba(27,42,34,.74);
+    -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+  }
+  #lightbox.on { display: flex; }
+  #lightbox img {
+    max-width: 100%; max-height: 86vh; border-radius: 14px; background: #fff;
+    box-shadow: 0 24px 60px -20px rgba(0,0,0,.55);
+  }
+  #lightbox .lbHint {
+    position: absolute; left: 0; right: 0; bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+    text-align: center; color: rgba(255,255,255,.8);
+    font-family: "Noto Sans TC", sans-serif; font-size: 12.5px;
+  }
 
   /* ---------- 視差圖層 ---------- */
   [data-par] { will-change: transform; }
@@ -300,7 +318,7 @@ window.tailwind && (tailwind.config = {
 
 <!-- 載入畫面：字型與版面就緒後淡出，最慢 2.4 秒一定收起來 -->
 <div id="boot" role="status" aria-label="載入中">
-  <p class="be">OCT 2026 &middot; 6 DAYS</p>
+  <p class="be">OCT 2026 &middot; 5 DAYS</p>
   <p class="bw">JEJU</p>
 </div>
 <!-- ===== 最底層裝飾：柔和色塊 + 等高線 ===== -->
@@ -336,12 +354,12 @@ window.tailwind && (tailwind.config = {
       <!-- 大標題：sticky 釘住，不做位移也不淡出 -->
       <div id="heroText" class="px-5 flex items-start justify-between">
         <div>
-          <p class="font-mono text-[11px] tracking-[0.32em] text-sage-deep">OCT 2026 · 6 DAYS</p>
+          <p class="font-mono text-[11px] tracking-[0.32em] text-sage-deep">OCT 2026 · 5 DAYS</p>
           <h1 class="font-display text-[86px] font-extrabold leading-[0.95] tracking-[-0.03em] text-forest mt-1">JEJU</h1>
         </div>
         <div class="shrink-0 glass backdrop-blur-xl ring-1 ring-white/60 shadow-sm rounded-full px-3.5 py-2 text-center">
           <p class="font-mono text-[10px] tracking-[0.14em] text-ink-dim">TRIP</p>
-          <p class="font-display text-[14.5px] font-extrabold text-forest tnum">10/24–29</p>
+          <p class="font-display text-[14.5px] font-extrabold text-forest tnum">10/27–31</p>
         </div>
       </div>
 
@@ -469,6 +487,11 @@ window.tailwind && (tailwind.config = {
     </div>
   </nav>
 
+  <!-- 圖片燈箱：點任一處關閉 -->
+  <div id="lightbox" role="dialog" aria-modal="true" aria-label="放大圖片">
+    <img alt=""><p class="lbHint">點任一處關閉 · 可雙指放大</p>
+  </div>
+
   <div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 bg-forest text-paper-warm text-[13.5px] px-4 py-2.5 rounded-full opacity-0 pointer-events-none transition-opacity duration-200"></div>
 </div>
 
@@ -558,38 +581,51 @@ const PCATS = [
 const CAT_FG = { '景點':'text-sage-deep', '美食':'text-forest', '咖啡廳':'text-lime-deep', '購物':'text-clay' };
 const pcat = k => PCATS.find(c => c.key === k) || PCATS[1];
 
+/* 行程裡用到的圖片，用 key 參照，避免把一長串 data URI 塞進 onclick */
+const IMGS = {
+  shuttle: 'data:image/png;base64,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',
+};
+
+function openImg(k) {
+  const box = document.getElementById('lightbox');
+  if (!box || !IMGS[k]) return;
+  box.querySelector('img').src = IMGS[k];
+  box.classList.add('on');
+}
+function closeImg() {
+  const box = document.getElementById('lightbox');
+  if (box) box.classList.remove('on');
+}
+
 const WD    = ['日','一','二','三','四','五','六'];          // 卡片標題與公休提示用
 const WD_EN = ['SUN','MON','TUE','WED','THU','FRI','SAT'];   // 日期膠囊用
 const TRIP = [
  {
-  "date": "2026/10/24",
-  "wd": 6,
+  "date": "2026/10/27",
+  "wd": 2,
   "zones": [
    "市區",
-   "涯月"
+   "東北部"
   ],
   "items": [
    {
     "cat": "flight",
-    "title": "班機 LJ764",
+    "title": "班機 LJ942",
     "note": "03:00 桃園 T1 → 06:10 濟州",
     "links": [
      {
       "label": "航班狀態",
-      "url": "https://www.flightradar24.com/data/flights/lj764",
+      "url": "https://www.flightradar24.com/data/flights/lj942",
       "icon": "plane"
      }
     ]
    },
    {
     "cat": "car",
-    "title": "租車取車",
-    "note": "08:00 · 58-7, Yonghae-ro, Jeju-si",
-    "kr": "제주시 용해로 58-7",
-    "nav": {
-     "q": "제주시 용해로 58-7"
-    },
-    "copy": "제주시 용해로 58-7"
+    "title": "07:30 租車取車",
+    "note": "濟州機場 5 Gate 出來，到 Zone 1 Platform 2 搭接駁車",
+    "img": "shuttle",
+    "imgAlt": "租車接駁車搭乘位置"
    },
    {
     "cat": "brunch",
@@ -599,6 +635,8 @@ const TRIP = [
     "tags": [
      "預約"
     ],
+    "hours": "09:00–21:00（休 15:30–16:30）",
+    "note": "10 點供應帶魚湯麵",
     "nav": {
      "lat": 33.5064195,
      "lng": 126.509232,
@@ -607,225 +645,78 @@ const TRIP = [
    },
    {
     "cat": "shop",
-    "title": "市區"
+    "title": "市區",
+    "note": "若疲勞可去汗蒸幕"
    },
    {
+    "cat": "beach",
+    "title": "咸德海灘",
+    "kr": "함덕해수욕장",
+    "nav": {
+     "lat": 33.5434231,
+     "lng": 126.6697752,
+     "kr": "함덕해수욕장"
+    }
+   },
+      {
     "cat": "cafe",
-    "title": "베릴 Beryl",
-    "kr": "베릴",
-    "note": "No kids — 13 歲以下不可入場",
+    "title": "Audrant Bakery",
+    "kr": "오드랑베이커리",
+    "dish": "大蒜麵包",
     "nav": {
-     "lat": 33.3975848,
-     "lng": 126.2425697,
-     "kr": "베릴"
+     "q": "오드랑베이커리"
+    }
+   },
+      {
+    "cat": "cafe",
+    "title": "London Bagel Museum Jeju",
+    "kr": "런던베이글뮤지엄",
+     "dish":"對面Object Jeju-矮袋鼠周邊",
+    "nav": {
+     "lat": 33.5535978,
+     "lng": 126.7155939,
+     "kr": "런던베이글뮤지엄",
     }
    },
    {
     "cat": "beach",
-    "title": "涯月海邊",
-    "kr": "애월 한담해안산책로",
-    "note": "漢潭海岸散步路",
+    "title": "金寧海邊",
+    "kr": "김녕해안도로",
     "nav": {
-     "q": "애월 한담해안산책로"
+     "lat": 33.5578652,
+     "lng": 126.7488633,
+     "kr": "김녕해안도로"
     }
    },
+   
    {
-    "cat": "beach",
-    "title": "挾才海水浴場",
-    "kr": "협재해수욕장",
-    "note": "17:30 日落",
-    "nav": {
-     "lat": 33.3942945,
-     "lng": 126.2398813,
-     "kr": "협재해수욕장"
-    }
-   },
-   {
-    "cat": "dinner",
-    "title": "靑草水水拌生魚片 濟州店",
-    "kr": "청초수물회 제주점",
-    "dish": "水拌生魚片／鮑魚粥",
-    "tags": [
-     "預約"
-    ],
-    "nav": {
-     "lat": 33.4566582,
-     "lng": 126.3091233,
-     "kr": "청초수물회 제주점"
-    }
-   },
-   {
-    "cat": "stay",
-    "title": "涯月住宿",
-    "note": "47-82 Haeami-gil, Aewol-eup, Cheju",
-    "nav": {
-     "q": "47-82 Haeami-gil, Aewol-eup, Jeju"
-    },
-    "copy": "47-82 Haeami-gil, Aewol-eup, Jeju"
-   }
-  ]
- },
- {
-  "date": "2026/10/25",
-  "wd": 0,
-  "zones": [
-   "西歸浦"
-  ],
-  "items": [
-   {
-    "cat": "sight",
-    "title": "偶來市場",
-    "kr": "서귀포매일올레시장",
-    "note": "附的地圖點是市場裡的老奶奶年糕",
-    "nav": {
-     "lat": 33.2486024,
-     "lng": 126.5642223,
-     "kr": "할머니떡집"
-    }
-   },
-   {
-    "cat": "sight",
-    "title": "龍頭海岸",
-    "kr": "용머리해안",
-    "note": "依潮位與天氣會封閉，出發前先查",
-    "nav": {
-     "lat": 33.2316155,
-     "lng": 126.3148321,
-     "kr": "용머리해안"
-    }
-   },
-   {
-    "cat": "lunch",
-    "title": "생원전복",
-    "kr": "생원전복",
-    "dish": "鮑魚石鍋飯",
-    "nav": {
-     "lat": 33.2458179,
-     "lng": 126.3307228,
-     "kr": "생원전복"
-    }
-   },
-   {
-    "cat": "beach",
-    "title": "沙溪海岸",
-    "kr": "사계해안",
-    "nav": {
-     "lat": 33.2231459,
-     "lng": 126.297477,
-     "kr": "사계해안"
-    }
-   },
-   {
-    "cat": "sight",
-    "title": "Osulloc 茶博物館",
-    "kr": "오설록 티 뮤지엄",
-    "note": "下雨的備案",
+    "cat": "cave",
+    "title": "萬丈窟",
+    "kr": "만장굴",
     "rain": true,
     "nav": {
-     "lat": 33.3059385,
-     "lng": 126.2894355,
-     "kr": "오설록 티 뮤지엄"
+     "lat": 33.5281972,
+     "lng": 126.7717618,
+     "kr": "만장굴"
     }
    },
    {
     "cat": "dinner",
-    "title": "豚魚吉",
-    "kr": "돈어길",
-    "dish": "黑豬肉烤肉",
-    "tags": [
-     "預約"
-    ],
+    "title": "月高家 黑豬肉",
+    "kr": "달고집",
+    "dish": "炭火黑豬肉",
+    "hours": "10:00–20:30（休 15:00–17:00）",
     "nav": {
-     "lat": 33.28076,
-     "lng": 126.2854572,
-     "kr": "돈어길"
-    }
-   }
-  ]
- },
- {
-  "date": "2026/10/26",
-  "wd": 1,
-  "zones": [
-   "漢拏山",
-   "市區"
-  ],
-  "items": [
-   {
-    "cat": "checkout",
-    "title": "退房"
-   },
-   {
-    "cat": "foliage",
-    "title": "天娥溪谷",
-    "kr": "천아계곡",
-    "note": "賞楓",
-    "nav": {
-     "lat": 33.3971528,
-     "lng": 126.459872,
-     "kr": "천아계곡"
-    }
-   },
-   {
-    "cat": "foliage",
-    "title": "御里牧路線",
-    "kr": "어리목계곡",
-    "note": "賞楓",
-    "nav": {
-     "lat": 33.3891192,
-     "lng": 126.4942262,
-     "kr": "어리목계곡"
-    }
-   },
-   {
-    "cat": "foliage",
-    "title": "天王寺",
-    "kr": "대한불교조계종 천왕사",
-    "note": "賞楓",
-    "nav": {
-     "lat": 33.4087029,
-     "lng": 126.4944197,
-     "kr": "대한불교조계종 천왕사"
-    }
-   },
-   {
-    "cat": "lunch",
-    "title": "Shinjeju Bomal Kalguksu",
-    "kr": "신제주보말칼국수 제주본점",
-    "dish": "海螺刀削麵／餃子",
-    "hours": "08:00–15:00",
-    "closed": 0,
-    "nav": {
-     "lat": 33.4879343,
-     "lng": 126.500021,
-     "kr": "신제주보말칼국수 제주본점"
-    }
-   },
-   {
-    "cat": "shop",
-    "title": "市區逛街",
-    "note": "採買、加油（市區油價較便宜）"
-   },
-   {
-    "cat": "dinner",
-    "title": "丈母食卓",
-    "kr": "장모식탁",
-    "dish": "鮑魚石鍋飯／醃鮑魚／醬蟹",
-    "tags": [
-     "預約"
-    ],
-    "closed": 0,
-    "nav": {
-     "lat": 33.4971067,
-     "lng": 126.546788,
-     "kr": "장모식탁"
+     "lat": 33.5533544,
+     "lng": 126.7911073,
+     "kr": "달고집"
     }
    },
    {
     "cat": "stay",
-    "title": "細花住宿（換住宿）",
+    "title": "舊左邑住宿",
+    "note": "16:00 起 CHECK IN · 31, 31-1 Sehwahapjeon 2-gil",
     "kr": "제주시 구좌읍 세화합전2길 31-1",
-    "note": "31, 31-1 Sehwahapjeon 2-gil, Gujwa-eup",
     "nav": {
      "q": "제주시 구좌읍 세화합전2길 31-1"
     },
@@ -834,18 +725,18 @@ const TRIP = [
   ]
  },
  {
-  "date": "2026/10/27",
-  "wd": 2,
+  "date": "2026/10/28",
+  "wd": 3,
   "zones": [
    "牛島"
   ],
-  "warn": "看天氣調整入島日期",
   "items": [
    {
     "cat": "island",
     "title": "牛島",
     "kr": "우도",
-    "note": "09:30 城山港搭船進島 · 導航到城山浦港公營停車場",
+    "dish": "要帶護照",
+    "note": "需注意船班狀態 · 城山港搭船 · 島上租電動單車",
     "nav": {
      "lat": 33.472463,
      "lng": 126.933234,
@@ -861,8 +752,68 @@ const TRIP = [
       "label": "租電動車",
       "url": "https://www.threads.com/@zongxun6412",
       "icon": "car"
+     },
+     {
+      "label": "租電動車地點",
+      "url": "https://map.naver.com/p/search/%EC%9A%B0%EB%8F%84%EB%A1%9C4-3?c=16.24,0,0,0,dh",
+      "icon": "nav"
      }
     ]
+   },
+   
+   {
+    "cat": "beach",
+    "title": "下高水洞海灘",
+    "kr": "하고수동해수욕장",
+    "note": "牛島",
+    "nav": {
+     "q": "하고수동해수욕장"
+    }
+   },
+   {
+    "cat": "lunch",
+    "title": "午餐",
+    "note": "附近安排"
+   },
+   {
+    "cat": "cafe",
+    "title": "BLANC ROCHER",
+    "kr": "블랑로쉐",
+    "dish": "Udo Peanut Cream Latte/花生冰淇淋",
+    "hours": "10:00–17:30",
+    "nav": {
+     "lat": 33.5156863,
+     "lng": 126.9580858,
+     "kr": "블랑로쉐"
+    }
+   },
+      {
+    "cat": "island",
+    "title": "搭船回本島",
+   },
+   
+   {
+    "cat": "cafe",
+    "title": "so much more",
+    "kr": "소머치모어",
+    "dish":"現做蒙布朗",
+    "hours": "10:30–20:00",
+    "closed": 2,
+    "nav": {
+     "lat": 33.5503288,
+     "lng": 126.6948041,
+     "kr": "소머치모어"
+    }
+   },
+   {
+    "cat": "beach",
+    "title": "杏源海灘（柯南海灘）",
+    "kr": "행원해변(코난해변)",
+    "nav": {
+     "lat": 33.5575318,
+     "lng": 126.8112241,
+     "kr": "행원해변(코난해변)"
+    }
    },
    {
     "cat": "sight",
@@ -881,94 +832,11 @@ const TRIP = [
     "nav": {
      "q": "섭지코지"
     }
-   }
-  ]
- },
- {
-  "date": "2026/10/28",
-  "wd": 3,
-  "zones": [
-   "東北部"
-  ],
-  "items": [
-   {
-    "cat": "beach",
-    "title": "杏源海灘（柯南海灘）",
-    "kr": "행원해변(코난해변)",
-    "nav": {
-     "lat": 33.5575318,
-     "lng": 126.8112241,
-     "kr": "행원해변(코난해변)"
-    }
-   },
-   {
-    "cat": "cave",
-    "title": "萬丈窟",
-    "kr": "만장굴",
-    "note": "室內，下雨也能走",
-    "rain": true,
-    "nav": {
-     "lat": 33.5281972,
-     "lng": 126.7717618,
-     "kr": "만장굴"
-    }
-   },
-   {
-    "cat": "lunch",
-    "title": "濟州韓麵家",
-    "kr": "제주한면가",
-    "dish": "豬肉湯麵",
-    "hours": "10:30–15:30",
-    "nav": {
-     "lat": 33.5120324,
-     "lng": 126.7000256,
-     "kr": "제주한면가"
-    }
-   },
-   {
-    "cat": "cafe",
-    "title": "so much more",
-    "kr": "so much more",
-    "closed": 2,
-    "nav": {
-     "lat": 33.5503288,
-     "lng": 126.6948041,
-     "kr": "so much more"
-    }
-   },
-   {
-    "cat": "beach",
-    "title": "金寧海邊",
-    "kr": "김녕해변 바닷길",
-    "nav": {
-     "lat": 33.5578652,
-     "lng": 126.7488633,
-     "kr": "김녕해변 바닷길"
-    }
-   },
-   {
-    "cat": "beach",
-    "title": "咸德海灘",
-    "kr": "함덕해수욕장",
-    "nav": {
-     "lat": 33.5434231,
-     "lng": 126.6697752,
-     "kr": "함덕해수욕장"
-    }
    },
    {
     "cat": "dinner",
-    "title": "季節食卓 咸德店",
-    "kr": "계절식탁 함덕점",
-    "dish": "海鮮生魚片（鯖魚、蝦）",
-    "tags": [
-     "預約"
-    ],
-    "nav": {
-     "lat": 33.5425961,
-     "lng": 126.6674297,
-     "kr": "계절식탁 함덕점"
-    }
+    "title": "晚餐",
+    "note": "附近安排"
    }
   ]
  },
@@ -976,8 +844,234 @@ const TRIP = [
   "date": "2026/10/29",
   "wd": 4,
   "zones": [
-   "市區",
-   "東部"
+   "漢拏山",
+   "市區"
+  ],
+  "items": [
+   {
+    "cat": "checkout",
+    "title": "退房",
+    "note": "換住宿"
+   },
+   
+   {
+    "cat": "lunch",
+    "title": "濟州韓麵家",
+    "kr": "제주한면가",
+    "dish": "豬肉湯麵",
+    "hours": "10:30–15:30",
+    "closed": 3,
+    "note": "豆豆飯飯推薦",
+    "nav": {
+     "lat": 33.5120324,
+     "lng": 126.7000256,
+     "kr": "제주한면가"
+    }
+   },
+   {
+    "cat": "foliage",
+    "title": "天娥溪谷",
+    "kr": "천아계곡",
+    "nav": {
+     "lat": 33.3971528,
+     "lng": 126.459872,
+     "kr": "천아계곡"
+    }
+   },
+   {
+    "cat": "foliage",
+    "title": "御里牧路線",
+    "kr": "어리목계곡",
+    "nav": {
+     "lat": 33.3891192,
+     "lng": 126.4942262,
+     "kr": "어리목계곡"
+    }
+   },
+   {
+    "cat": "foliage",
+    "title": "天王寺",
+    "kr": "대한불교조계종 천왕사",
+    "nav": {
+     "lat": 33.4087029,
+     "lng": 126.4944197,
+     "kr": "대한불교조계종 천왕사"
+    }
+   },
+   {
+    "cat": "dinner",
+    "title": "丈母食卓",
+    "kr": "장모식탁",
+    "dish": "鮑魚石鍋飯／醃鮑魚／醬蟹",
+    "tags": [
+     "預約"
+    ],
+    "hours": "09:00–20:30",
+    "closed": 0,
+    "nav": {
+     "lat": 33.4971067,
+     "lng": 126.546788,
+     "kr": "장모식탁"
+    }
+   },
+   {
+    "cat": "shop",
+    "title": "市區",
+    "note": "採買、加油（市區油價較便宜）"
+   },
+   {
+    "cat": "stay",
+    "title": "涯月邑住宿",
+    "note": "16:00 起 CHECK IN · Jangjeon 4-gil, 84-1 Aewol-eup",
+    "kr": "제주시 애월읍 장전4길 84-1",
+    "nav": {
+     "q": "제주시 애월읍 장전4길 84-1"
+    },
+    "copy": "제주시 애월읍 장전4길 84-1"
+   }
+  ]
+ },
+ {
+  "date": "2026/10/30",
+  "wd": 5,
+  "zones": [
+   "西歸浦",
+   "涯月"
+  ],
+  "items": [
+   {
+    "cat": "sight",
+    "title": "偶來市場",
+    "kr": "서귀포매일올레시장",
+    "note": "老奶奶年糕、油煎年糕等小吃",
+    "nav": {
+     "lat": 33.2486024,
+     "lng": 126.5642223,
+     "kr": "할머니떡집"
+    }
+   },
+   {
+    "cat": "sight",
+    "title": "龍頭海岸",
+    "kr": "용머리해안",
+    "note": "依潮位與天氣可能封閉，出發前先查詢",
+    "nav": {
+     "lat": 33.2316155,
+     "lng": 126.3148321,
+     "kr": "용머리해안"
+    },
+    "links": [
+     {
+      "label": "查看狀態",
+      "url": "https://www.visitjeju.net/kr/detail/view?contentsid=CONT_000000000500471",
+      "icon": "ship"
+     },
+    ]
+   },
+   {
+    "cat": "lunch",
+    "title": "兄弟島海螺刀切麵",
+    "kr": "형제도식당",
+    "dish": "海螺刀切麵",
+    "hours": "10:00–22:00",
+    "nav": {
+     "lat": 33.2069012,
+     "lng": 126.2902768,
+     "kr": "형제도식당"
+    }
+   },
+   {
+    "cat": "lunch",
+    "title": "고결 고등어숯불반상",
+    "kr": "고결",
+    "dish": "炭烤鯖魚",
+    "note": "在兄弟島隔壁，可二選一",
+    "hours": "10:00–18:00",
+    "nav": {
+     "lat": 33.2068097,
+     "lng": 126.2899923,
+     "kr": "고결"
+    }
+   },
+   
+   {
+    "cat": "beach",
+    "title": "沙溪海岸",
+    "kr": "사계해안",
+    "nav": {
+     "lat": 33.2231459,
+     "lng": 126.297477,
+     "kr": "사계해안"
+    }
+   },
+   {
+    "cat": "cafe",
+    "title": "Beryl",
+    "kr": "베릴",
+    "dish": "海景咖啡廳",
+    "hours": "10:00–19:00",
+    "nav": {
+     "lat": 33.3975848,
+     "lng": 126.2425697,
+     "kr": "베릴"
+    }
+   },
+   {
+    "cat": "beach",
+    "title": "挾才海水浴場",
+    "kr": "협재해수욕장",
+    "note": "17:30 日落",
+    "nav": {
+     "lat": 33.3942945,
+     "lng": 126.2398813,
+     "kr": "협재해수욕장"
+    }
+   },
+   {
+    "cat": "beach",
+    "title": "漢潭海岸",
+    "kr": "애월 한담해안산책로",
+    "note": "附近很多選物店",
+    "nav": {
+     "q": "애월 한담해안산책로"
+    }
+   },
+   {
+    "cat": "dinner",
+    "title": "靑草水水拌生魚片 濟州店",
+    "kr": "청초수물회 제주점",
+    "dish": "水拌生魚片／鮑魚粥",
+    "hours": "10:00–21:00",
+    "nav": {
+     "lat": 33.4566582,
+     "lng": 126.3091233,
+     "kr": "청초수물회 제주점"
+    }
+   },
+   {
+    "cat": "dinner",
+    "title": "熟成到 涯月店",
+    "kr": "숙성도 애월점",
+    "dish": "熟成黑豬肉",
+    "tags": [
+     "預約"
+    ],
+    "note": "與靑草水二選一",
+    "hours": "12:00–22:00（休 15:30–16:30）",
+    "nav": {
+     "lat": 33.463515,
+     "lng": 126.3096504,
+     "kr": "숙성도 애월점"
+    }
+   }
+  ]
+ },
+ {
+  "date": "2026/10/31",
+  "wd": 6,
+  "zones": [
+   "涯月",
+   "市區"
   ],
   "items": [
    {
@@ -985,8 +1079,14 @@ const TRIP = [
     "title": "11:00 退房"
    },
    {
-    "cat": "shop",
-    "title": "市區逛街"
+    "cat": "cafe",
+    "title": "Assisi",
+    "note": "香水+咖啡廳",
+    "nav": {
+      "lat": 33.4778079,
+      "lng": 126.3550408,
+     "kr": "아시시"
+ }
    },
    {
     "cat": "lunch",
@@ -996,7 +1096,7 @@ const TRIP = [
     "tags": [
      "預約"
     ],
-    "hours": "10:30–17:00",
+    "hours": "11:00–17:00",
     "nav": {
      "lat": 33.5153877,
      "lng": 126.5186172,
@@ -1004,19 +1104,39 @@ const TRIP = [
     }
    },
    {
+    "cat": "lunch",
+    "title": "Shinjeju Bomal Kalguksu",
+    "kr": "신제주보말칼국수 제주본점",
+    "dish": "海螺刀削麵／餃子",
+    "note": "午餐備案",
+    "hours": "08:00–15:00",
+    "closed": 3,
+    "nav": {
+     "lat": 33.4879343,
+     "lng": 126.500021,
+     "kr": "신제주보말칼국수 제주본점"
+    }
+   },
+      {
+    "cat": "shop",
+    "title": "市區",
+   },
+   {
     "cat": "car",
     "title": "還車",
-    "note": "19:00 · 58-7, Yonghae-ro, Jeju-si",
-    "kr": "제주시 용해로 58-7",
+    "note": "19:00 前 · SK Rent a Car Jeju · 730-2 용담2동",
+    "kr": "730-2 용담2동",
     "nav": {
-     "q": "제주시 용해로 58-7"
+     "lat": 33.504037,
+     "lng": 126.501047,
+     "kr": "SK렌터카 제주"
     },
-    "copy": "제주시 용해로 58-7"
+    "copy": "제주시 용담2동 730-2"
    },
    {
     "cat": "flight",
     "title": "班機 LJ941",
-    "note": "22:15 濟州 → 23:45 桃園",
+    "note": "22:15 濟州 → 23:45 桃園 T1",
     "links": [
      {
       "label": "航班狀態",
@@ -1281,6 +1401,15 @@ function row(it, day) {
                text-forest text-[12.5px] font-bold rounded-full px-2.5 py-1">
         ${icon(l.icon || 'link', 'w-3.5 h-3.5')}${l.label}</a>`).join('');
 
+  // 附圖：卡片裡直接顯示縮圖，點一下開燈箱放大
+  const fig = (it.img && IMGS[it.img])
+    ? `<button onclick="openImg('${it.img}')" aria-label="放大${it.imgAlt || '圖片'}"
+         class="block w-full mt-2 overflow-hidden rounded-xl ring-1 ring-ink-line bg-white">
+         <img src="${IMGS[it.img]}" alt="${it.imgAlt || ''}" class="block w-full"/>
+       </button>
+       <p class="text-[11px] text-ink-dim mt-1">${it.imgAlt || ''}（點圖放大）</p>`
+    : '';
+
   const copyBtn = it.copy
     ? `<button onclick="copyText('${it.copy.replace(/'/g, "\\'")}')" aria-label="複製地址"
          class="shrink-0 w-8 h-8 flex items-center justify-center bg-white ring-1 ring-ink-line active:bg-paper text-ink-mid rounded-full">
@@ -1296,7 +1425,7 @@ function row(it, day) {
       <div class="min-w-0 flex-1">
         <div class="flex items-center gap-1.5 flex-wrap">
           <span class="font-mono text-[10.5px] tracking-[0.14em] uppercase text-ink-dim">${c.label}</span>
-          ${it.rain ? `<span class="text-[10.5px] font-bold bg-sage-tint text-sage-deep rounded px-1.5">雨備</span>` : ''}
+          ${it.rain ? `<span class="text-[10.5px] font-bold bg-sage-tint text-sage-deep rounded px-1.5">室內</span>` : ''}
           ${(it.tags || []).map(t => `<span class="text-[10.5px] font-bold bg-forest text-lime rounded px-1.5">${t}</span>`).join('')}
         </div>
 
@@ -1312,6 +1441,7 @@ function row(it, day) {
                  星期${WD[it.closed]}公休${isClosed ? '（就是今天）' : ''}</span>` : ''}
         </div>` : ''}
 
+        ${fig}
         ${links ? `<div class="flex flex-wrap gap-1.5 mt-2">${links}</div>` : ''}
       </div>
 
@@ -1560,7 +1690,6 @@ async function loadTripWx() {
   }
   if (mix) {
     DAY_WX = mix; paintDayWx();
-    setWxNote('濟州市（제주시）· 綜合預報（KMA 資料暫停供應中，恢復後會自動改用）');
     return;
   }
 
@@ -1716,6 +1845,8 @@ function paintDayWx() {
    ========================================================= */
 document.getElementById('searchIcon').innerHTML = icon('search', 'w-4 h-4');
 document.getElementById('parkIcon').innerHTML   = icon('parking', 'w-[18px] h-[18px]');
+document.getElementById('lightbox').onclick = closeImg;
+addEventListener('keydown', e => { if (e.key === 'Escape') closeImg(); });
 loadTripWx().catch(() => {});                // 天氣抓不到就靜靜略過，不影響行程
 renderPlan();
 markDay(0);
